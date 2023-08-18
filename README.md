@@ -1,16 +1,20 @@
 # mata_uang
 
-A new Flutter project.
+Then, run flutter `pub get` to get packages.
 
-## Getting Started
+Note: If you see an error like `Class 'TfliteFlutterHelperPlugin' is not abstract and does not implement abstract member public abstract fun onRequestPermissionsResult(p0: Int, p1: Array<(out) String!>, p2: IntArray) it might be related to this issue`. To work around it, replace the `tflite_flutter_helper: ^0.3.1` dependency with the following git call:
+```dart
+tflite_flutter_helper:
+ git:
+  url: https://github.com/filofan1/tflite_flutter_helper.git
+  ref: 783f15e5a87126159147d8ea30b98eea9207ac70
+```
+Get packages again.
 
-This project is a starting point for a Flutter application.
+Then, if you are building for Android, run the installation script below on `macOS/Linux`:
 
-A few resources to get you started if this is your first Flutter project:
+```bash ./install.sh ```
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+If you’re on `Windows`, run install.bat instead:
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash install.bat ```
