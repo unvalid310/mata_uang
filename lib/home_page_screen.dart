@@ -175,9 +175,12 @@ class _MyHomePageState extends State<HomePageScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.large(
         onPressed: getImageFromCamera, //
-        child: const Icon(Icons.camera_alt_rounded),
+        child: const Icon(
+          Icons.camera_alt_rounded,
+          size: 60,
+        ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
