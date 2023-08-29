@@ -17,7 +17,7 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomePageScreen(title: 'Mata Uang'),
+      home: HomePageScreen(title: 'Mata Uang'),
       debugShowCheckedModeBanner: false,
     );
   }

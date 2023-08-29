@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, use_key_in_widget_constructors, prefer_const_constructors_in_immutables
 
 import 'dart:io';
 
@@ -11,11 +11,11 @@ import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image/image.dart' as img;
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 
 class HomePageScreen extends StatefulWidget {
-  const HomePageScreen({Key? key, required this.title}) : super(key: key);
-
   final String title;
+  HomePageScreen({required this.title});
 
   @override
   State<HomePageScreen> createState() => _MyHomePageState();
@@ -36,12 +36,31 @@ class _MyHomePageState extends State<HomePageScreen> {
 
   final FlutterTts tts = FlutterTts();
 
+  late TutorialCoachMark tutorialCoachMark;
+  List<TargetFocus> targets = [];
+
+  GlobalKey key = GlobalKey();
+  final GlobalKey _key1 = GlobalKey();
+  final GlobalKey _key2 = GlobalKey();
+  final GlobalKey _key3 = GlobalKey();
+
   @override
   void initState() {
     super.initState();
-    loadModel();
+    // config text speach
     tts.setLanguage('id');
     tts.setSpeechRate(0.4);
+
+    // config quick tour
+    initTargets();
+    createTutorial();
+    Future.delayed(const Duration(milliseconds: 100), () {
+      showTutorial();
+    });
+    speakTutorial();
+
+    // memuat model tflite
+    loadModel();
   }
 
   // load model data set
@@ -76,7 +95,7 @@ class _MyHomePageState extends State<HomePageScreen> {
       //Proses crop dan menentukan bidang yang disimpan
       bool success = await EdgeDetection.detectEdge(
         imagePath,
-        canUseGallery: true,
+        canUseGallery: false,
         androidScanTitle: 'Scanning',
         androidCropTitle: 'Crop',
         androidCropBlackWhiteTitle: 'Black White',
@@ -123,7 +142,9 @@ class _MyHomePageState extends State<HomePageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(
+          widget.title,
+        ),
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -176,6 +197,7 @@ class _MyHomePageState extends State<HomePageScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.large(
+        key: _key1,
         onPressed: getImageFromCamera, //
         child: const Icon(
           Icons.camera_alt_rounded,
@@ -183,5 +205,164 @@ class _MyHomePageState extends State<HomePageScreen> {
         ),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  // posisi target untuk memunculkan quik tour
+  void initTargets() {
+    targets.add(
+      TargetFocus(
+        identify: "Target 0",
+        keyTarget: _key1,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const <Widget>[
+                  Text(
+                    "Langkah Pertama",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20.0),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: Text(
+                      "Tekan tombol kamera di pojok kanan bawah",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+        radius: 0.5,
+      ),
+    );
+
+    targets.add(
+      TargetFocus(
+        identify: "Target 1",
+        keyTarget: _key1,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child: Container(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const <Widget>[
+                  Text(
+                    "Langkah Kedua",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20.0),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: Text(
+                      "Setelah masuk kehalaman scan, tekan tombol di tengah bawah untuk scan uang",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+        enableOverlayTab: true,
+        radius: 0.5,
+      ),
+    );
+  }
+
+  // inisialisasi quick tour
+  void createTutorial() {
+    tutorialCoachMark = TutorialCoachMark(
+      targets: targets,
+      colorShadow: Colors.blue,
+      hideSkip: true,
+      textSkip: "SKIP",
+      alignSkip: Alignment.topRight,
+      paddingFocus: 10,
+      opacityShadow: 0.9,
+      onFinish: () {
+        print("finish");
+        tts.stop();
+      },
+      onClickTarget: (target) {
+        print('onClickTarget: ${target.identify}');
+        tts.pause();
+        if (target.identify == 'Target 0') {
+          tts.speak(
+              '   Langkah kedua,    Setelah masuk kehalaman scan,   tekan tombol di tengah bawah untuk scan uang  ');
+        }
+      },
+      onClickTargetWithTapPosition: (target, tapDetails) {
+        print("target: $target");
+        print(
+            "clicked at position local: ${tapDetails.localPosition} - global: ${tapDetails.globalPosition}");
+      },
+      onClickOverlay: (target) {
+        print('onClickOverlay: ${target.identify.toString()}');
+        tutorialCoachMark.next();
+      },
+      onSkip: () {
+        print("skip");
+      },
+    );
+  }
+
+  // menjalankan fungsi quick tour
+  void showTutorial() {
+    tutorialCoachMark = TutorialCoachMark(
+      targets: targets,
+      colorShadow: Colors.blue,
+      hideSkip: true,
+      textSkip: "SKIP",
+      alignSkip: Alignment.topRight,
+      paddingFocus: 10,
+      opacityShadow: 0.9,
+      onFinish: () {
+        print("finish");
+      },
+      onClickTarget: (target) {
+        print('onClickTarget: ${target.identify}');
+
+        // menambahkan suara ketika quick tour
+        if (target.identify == 'Target 0') {
+          tts.speak(
+              '   Langkah kedua,    Setelah masuk kehalaman scan,   tekan tombol di tengah bawah untuk scan uang  ');
+        }
+      },
+      onClickTargetWithTapPosition: (target, tapDetails) {
+        print("target: $target");
+        print(
+            "clicked at position local: ${tapDetails.localPosition} - global: ${tapDetails.globalPosition}");
+      },
+      onClickOverlay: (target) {
+        print('onClickOverlay: $target');
+      },
+      onSkip: () {
+        print("skip");
+      },
+    )..show(context: this.context);
+
+    print('target show ${tutorialCoachMark.targets[0].identify}');
+  }
+
+  // menambahkan suara ketika quick tour
+  void speakTutorial() {
+    if (tutorialCoachMark.targets[0].identify == 'Target 0') {
+      tts.speak(
+          '   Langkah pertama,    Tekan tombol kamera di pojok kanan bawah  ');
+    }
   }
 }
