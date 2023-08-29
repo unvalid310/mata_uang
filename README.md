@@ -17,4 +17,4 @@ Then, if you are building for Android, run the installation script below on `mac
 
 If you’re on `Windows`, run install.bat instead:
 
-```bash install.bat ```
+```install.bat ```
